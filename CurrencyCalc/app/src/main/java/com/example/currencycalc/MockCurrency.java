@@ -1,5 +1,6 @@
 package com.example.currencycalc;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -15,7 +16,8 @@ import java.util.ListIterator;
 
 public class MockCurrency implements CurrencyDAO {
 
-    public ArrayList<Rate> getRates(String base) {
+    // Creates mock rates
+    public ArrayList<Rate> getRates(String base, Context context) {
         ArrayList<Rate> rates = new ArrayList<>();
 
             rates.add(new Rate("DKK", 1.0));
@@ -27,12 +29,13 @@ public class MockCurrency implements CurrencyDAO {
         return rates;
     }
 
-    public List<String> mockCurrency(String base, Double amount) {
-        ArrayList<Rate> currencies = getRates("");
+    // Converts rates of the User's selected currency into other currencies.
+    public List<String> getCurrencies(String base, Double amount, Context context) {
+        ArrayList<Rate> currencies = getRates("", context);
         ArrayList<String> conversionRates = new ArrayList<>();
-
         Double baseValue = null;
 
+        // Finds the value of the base currency, then makes its value the base value.
         for (int i = 0; i < currencies.size(); i++) {
             if (base == currencies.get(i).getName()) {
                 baseValue = currencies.get(i).spotRate;
@@ -40,6 +43,7 @@ public class MockCurrency implements CurrencyDAO {
             }
         }
 
+        // Updates the conversionRates ArrayList with name and converted rates.
         for (int i = 0; i < currencies.size(); i++) {
             if (base != currencies.get(i).name)
                 conversionRates.add(currencies.get(i).name + "\n" + String.valueOf(amount * (currencies.get(i).getSpotRate() / baseValue)));
@@ -48,14 +52,16 @@ public class MockCurrency implements CurrencyDAO {
         return conversionRates;
     }
 
+    // Returns a list of currencies for the user to choose from.
     @RequiresApi(api = Build.VERSION_CODES.R)
-    public ArrayList<String> getCurrencies() {
-        ArrayList<Rate> currencies = getRates("");
+    public ArrayList<String> getCurrencyNames() {
         ArrayList<String> currencyNames = new ArrayList<>();
 
-        for (int i = 0; i < currencies.size(); i++) {
-            currencyNames.add(currencies.get(i).name);
-        }
+        currencyNames.add("DKK");
+        currencyNames.add("NOK");
+        currencyNames.add("SEK");
+        currencyNames.add("EUR");
+        currencyNames.add("USD");
 
         return currencyNames;
     }

@@ -56,8 +56,7 @@
                     android:layout_marginHorizontal="10dp"
                     android:layout_height="wrap_content"
                     android:hint="Amount"
-                    android:digits="0123456789,."
-                    android:inputType="textEmailAddress" />
+                    android:digits="0123456789,."/>
 '
                 <LinearLayout
                     android:layout_weight="0.30"

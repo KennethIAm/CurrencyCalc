@@ -30,29 +30,27 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAPresenter = new MainActivityPresenter(this, new FixerCurrency());
         EditText amountEditText = findViewById(R.id.amountEditText);
         amountEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
         Button goButton = findViewById(R.id.goButton);
-
         ListView listView = findViewById(R.id.CurrencyListView);
-        MockCurrency mockCurrency = new MockCurrency();
-        rates = (ArrayList<String>)mockCurrency.mockCurrency("DKK", 1.0);
-
-        mAPresenter = new MainActivityPresenter(this);
-
-        ArrayList<String> currencies = mAPresenter.getCurrencies();
-
         Spinner currencySpinner = findViewById(R.id.currencySpinner);
+
+        // Gets the currencies shown in the Spinner.
+        ArrayList<String> currencies = mAPresenter.getCurrencyNames(this);
+
+        // Runs the API call once, because it never updates to show the first API call.
+        rates = (ArrayList<String>)mAPresenter.applyRateConversion("DKK", 1.0, this);
+
+        // Sets the adapters for the Spinner and for the EditText.
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, currencies);
         currencySpinner.setAdapter(spinAdapter);
-
-
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                rates );
-
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, rates );
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
+        // If amountEditText isn't empty, it calls the updateViewList method.
         goButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -63,10 +61,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         });
     }
 
+    // Clears and updates the rates list, then notifies the adapter.
     @RequiresApi(api = Build.VERSION_CODES.R)
     public void updateViewList(String base, Double amount, MainActivityPresenter mAPresenter) {
         rates.clear();
-        rates = (ArrayList<String>)mAPresenter.applyRateConversion(base, amount);
+        rates = (ArrayList<String>)mAPresenter.applyRateConversion(base, amount, this);
         adapter.clear();
         for (String r : rates) {
             adapter.add(r);
